@@ -32,7 +32,12 @@ export default function Modal({ open, title, onClose, children }) {
         onMouseDown={handleOverlay}
         >
         <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
-            {children}
+            <div className="modal-header">
+                <h2>{title}</h2>
+            </div>
+            <div className="modal-content">
+                {children}
+            </div>
         </div>
         </div>
     );

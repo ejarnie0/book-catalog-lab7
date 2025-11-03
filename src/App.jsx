@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import BookForm from "./components/bookForm.jsx";
 import FilterBar from "./components/filterBar.jsx";
 import BookGrid from "./components/bookGrid.jsx";
-import Modal from "./components/Modal.jsx"
+import Modal from "./components/modal.jsx";
+import LoanManagement from "./components/loanManagement.jsx";
 
 const LS_KEY = "books_v1";
+const LS_LOANS_KEY = "loans_v1";
 
 // const seed = [
 //     { id: crypto.randomUUID(), title: "Dune", author: "Frank Herbert", publisher: "Ace", language: "English", year: 1965, image: "" },
@@ -14,93 +16,104 @@ const LS_KEY = "books_v1";
 
 const seed = [
     {
-        "title": "Effective JavaScript",
-        "subtitle": "68 Specific Ways to Harness the Power of JavaScript",
-        "isbn13": "9780321812186",
-        "price": "$21.99",
-        "image": "https://itbook.store/img/books/9780321812186.png",
-        "url": "https://itbook.store/books/9780321812186"
+        id: crypto.randomUUID(),
+        title: "Effective JavaScript",
+        author: "David Herman",
+        publisher: "Addison-Wesley",
+        language: "English",
+        year: 2012,
+        image: "https://itbook.store/img/books/9780321812186.png"
     },
     {
-        "title": "Beginning JavaScript, 3nd Edition",
-        "subtitle": "The Ultimate Guide to Modern JavaScript Development",
-        "isbn13": "9781484243947",
-        "price": "$19.02",
-        "image": "https://itbook.store/img/books/9781484243947.png",
-        "url": "https://itbook.store/books/9781484243947"
+        id: crypto.randomUUID(),
+        title: "Beginning JavaScript, 3nd Edition",
+        author: "Russ Ferguson",
+        publisher: "Apress",
+        language: "English",
+        year: 2019,
+        image: "https://itbook.store/img/books/9781484243947.png"
     },
     {
-        "title": "Learn Enough JavaScript to Be Dangerous",
-        "subtitle": "Write Programs, Publish Packages, and Develop Interactive Websites with JavaScript",
-        "isbn13": "9780137843749",
-        "price": "$31.98",
-        "image": "https://itbook.store/img/books/9780137843749.png",
-        "url": "https://itbook.store/books/9780137843749"
+        id: crypto.randomUUID(),
+        title: "Learn Enough JavaScript to Be Dangerous",
+        author: "Michael Hartl",
+        publisher: "Addison-Wesley",
+        language: "English",
+        year: 2020,
+        image: "https://itbook.store/img/books/9780137843749.png"
     },
     {
-        "title": "Test-Driven JavaScript Development",
-        "subtitle": "",
-        "isbn13": "9780321683915",
-        "price": "$10.29",
-        "image": "https://itbook.store/img/books/9780321683915.png",
-        "url": "https://itbook.store/books/9780321683915"
+        id: crypto.randomUUID(),
+        title: "Test-Driven JavaScript Development",
+        author: "Christian Johansen",
+        publisher: "Addison-Wesley",
+        language: "English",
+        year: 2010,
+        image: "https://itbook.store/img/books/9780321683915.png"
     },
     {
-        "title": "Learning JavaScript",
-        "subtitle": "A Hands-On Guide to the Fundamentals of Modern JavaScript",
-        "isbn13": "9780321832740",
-        "price": "$8.99",
-        "image": "https://itbook.store/img/books/9780321832740.png",
-        "url": "https://itbook.store/books/9780321832740"
+        id: crypto.randomUUID(),
+        title: "Learning JavaScript",
+        author: "Ethan Brown",
+        publisher: "O'Reilly Media",
+        language: "English",
+        year: 2016,
+        image: "https://itbook.store/img/books/9780321832740.png"
     },
     {
-        "title": "jQuery and JavaScript Phrasebook",
-        "subtitle": "",
-        "isbn13": "9780321918963",
-        "price": "$14.48",
-        "image": "https://itbook.store/img/books/9780321918963.png",
-        "url": "https://itbook.store/books/9780321918963"
+        id: crypto.randomUUID(),
+        title: "jQuery and JavaScript Phrasebook",
+        author: "Brad Dayley",
+        publisher: "Addison-Wesley",
+        language: "English",
+        year: 2014,
+        image: "https://itbook.store/img/books/9780321918963.png"
     },
     {
-        "title": "JavaScript: The Good Parts",
-        "subtitle": "Unearthing the Excellence in JavaScript",
-        "isbn13": "9780596517748",
-        "price": "$4.37",
-        "image": "https://itbook.store/img/books/9780596517748.png",
-        "url": "https://itbook.store/books/9780596517748"
+        id: crypto.randomUUID(),
+        title: "JavaScript: The Good Parts",
+        author: "Douglas Crockford",
+        publisher: "O'Reilly Media",
+        language: "English",
+        year: 2008,
+        image: "https://itbook.store/img/books/9780596517748.png"
     },
     {
-        "title": "Head First JavaScript",
-        "subtitle": "A Learner's Companion to JavaScript",
-        "isbn13": "9780596527747",
-        "price": "$7.72",
-        "image": "https://itbook.store/img/books/9780596527747.png",
-        "url": "https://itbook.store/books/9780596527747"
+        id: crypto.randomUUID(),
+        title: "Head First JavaScript",
+        author: "Michael Morrison",
+        publisher: "O'Reilly Media",
+        language: "English",
+        year: 2008,
+        image: "https://itbook.store/img/books/9780596527747.png"
     },
     {
-        "title": "High Performance JavaScript",
-        "subtitle": "Build Faster Web Application Interfaces",
-        "isbn13": "9780596802790",
-        "price": "$19.59",
-        "image": "https://itbook.store/img/books/9780596802790.png",
-        "url": "https://itbook.store/books/9780596802790"
+        id: crypto.randomUUID(),
+        title: "High Performance JavaScript",
+        author: "Nicholas C. Zakas",
+        publisher: "O'Reilly Media",
+        language: "English",
+        year: 2010,
+        image: "https://itbook.store/img/books/9780596802790.png"
     },
     {
-        "title": "Building iPhone Apps with HTML, CSS, and JavaScript",
-        "subtitle": "Making App Store Apps Without Objective-C or Cocoa",
-        "isbn13": "9780596805784",
-        "price": "$5.00",
-        "image": "https://itbook.store/img/books/9780596805784.png",
-        "url": "https://itbook.store/books/9780596805784"
+        id: crypto.randomUUID(),
+        title: "Building iPhone Apps with HTML, CSS, and JavaScript",
+        author: "Jonathan Stark",
+        publisher: "O'Reilly Media",
+        language: "English",
+        year: 2010,
+        image: "https://itbook.store/img/books/9780596805784.png"
     }
-    
 ]
 
 export default function App() {
     const [books, setBooks] = useState([]);
+    const [loans, setLoans] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [filters, setFilters] = useState({ publisher: "", language: "" });
     const [modalOpen, setModalOpen] = useState(false);
+    const [currentView, setCurrentView] = useState("books");
 
   // load once
     useEffect(() => {
@@ -111,12 +124,25 @@ export default function App() {
         } else {
         setBooks(seed);
         }
+        
+        // Load loans
+        const loansLS = localStorage.getItem(LS_LOANS_KEY);
+        if (loansLS) {
+            try { setLoans(JSON.parse(loansLS)); }
+            catch { setLoans([]); }
+        } else {
+            setLoans([]);
+        }
     }, []);
 
     // persist
     useEffect(() => {
         localStorage.setItem(LS_KEY, JSON.stringify(books));
     }, [books]);
+
+    useEffect(() => {
+        localStorage.setItem(LS_LOANS_KEY, JSON.stringify(loans));
+    }, [loans]);
 
     const unique = (arr) => [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
     const publishers = useMemo(() => unique(books.map(b => b.publisher)), [books]);
@@ -144,40 +170,97 @@ export default function App() {
         setModalOpen(false);
     };
 
-    const removeBook = (id) => setBooks(prev => prev.filter(b => b.id !== id));
+    const removeBook = (id) => {
+        // Also remove any loans for this book
+        setLoans(prev => prev.filter(loan => loan.bookId !== id));
+        setBooks(prev => prev.filter(b => b.id !== id));
+    };
 
     const openAdd = () => { setEditingId(null); setModalOpen(true); };
     const openEdit = (id) => { setEditingId(id); setModalOpen(true); };
+
+    // Loan management functions
+    const createLoan = ({ borrower, bookId, loanPeriod }) => {
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + (loanPeriod * 7));
+        
+        const newLoan = {
+            id: crypto.randomUUID(),
+            bookId,
+            borrower: borrower.trim(),
+            dueDate: dueDate.toISOString(),
+            loanPeriod
+        };
+        setLoans(prev => [...prev, newLoan]);
+    };
+
+    const returnBook = (loanId) => {
+        setLoans(prev => prev.filter(loan => loan.id !== loanId));
+    };
+
+    // Check if a book is on loan
+    const isBookOnLoan = (bookId) => {
+        return loans.some(loan => loan.bookId === bookId);
+    };
 
     return (
         <div className="app">
         <header className="header">
             <h1>Book Catalog</h1>
+            <div className="view-switcher">
+                <button
+                    className={currentView === "books" ? "active" : ""}
+                    onClick={() => setCurrentView("books")}
+                >
+                    Book Listing
+                </button>
+                <button
+                    className={currentView === "loans" ? "active" : ""}
+                    onClick={() => setCurrentView("loans")}
+                >
+                    Loan Management
+                </button>
+            </div>
         </header>
 
         <main className="main-content">
-            <div className="container">
-            {/* LEFT PANEL: Filters */}
-            <aside className="left-panel">
-                <FilterBar
-                publishers={publishers}
-                languages={languages}
-                filters={filters}
-                onChange={setFilters}
-                onClear={() => setFilters({ publisher: "", language: "" })}
-                />
-            </aside>
+            {currentView === "books" ? (
+                <div className="container">
+                {/* LEFT PANEL: Filters */}
+                <aside className="left-panel">
+                    <FilterBar
+                    publishers={publishers}
+                    languages={languages}
+                    filters={filters}
+                    onChange={setFilters}
+                    onClear={() => setFilters({ publisher: "", language: "" })}
+                    />
+                </aside>
 
-            {/* GRID: Cards + Add card */}
-            <section style={{ gridColumn: 2 }}>
-                <BookGrid
-                books={filtered}
-                onAdd={openAdd}
-                onEdit={openEdit}
-                onDelete={removeBook}
-                />
-            </section>
-            </div>
+                {/* GRID: Cards + Add card */}
+                <section style={{ gridColumn: 2 }}>
+                    <BookGrid
+                    books={filtered}
+                    loans={loans}
+                    isBookOnLoan={isBookOnLoan}
+                    onAdd={openAdd}
+                    onEdit={openEdit}
+                    onDelete={removeBook}
+                    />
+                </section>
+                </div>
+            ) : (
+                <div className="container">
+                    <section style={{ gridColumn: "1 / -1", padding: "2rem" }}>
+                        <LoanManagement
+                            books={books}
+                            loans={loans}
+                            onCreateLoan={createLoan}
+                            onReturnBook={returnBook}
+                        />
+                    </section>
+                </div>
+            )}
         </main>
 
         <footer className="footer">

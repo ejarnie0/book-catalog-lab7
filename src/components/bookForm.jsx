@@ -36,9 +36,17 @@ export default function BookForm({ initial, onSave, onCancel }) {
 
   return (
     <form className="add-book-form" onSubmit={submit}>
-      <h2>{isEditing ? "Edit Book" : "Add Book"}</h2>
-
       <input placeholder="Title *" value={form.title} onChange={e=>update("title", e.target.value)} />
       <input placeholder="Author *" value={form.author} onChange={e=>update("author", e.target.value)} />
-      <input placeholder="Publisher
+      <input placeholder="Publisher" value={form.publisher} onChange={e=>update("publisher", e.target.value)} />
+      <input placeholder="Language" value={form.language} onChange={e=>update("language", e.target.value)} />
+      <input placeholder="Year" type="number" value={form.year} onChange={e=>update("year", e.target.value)} />
+      <input placeholder="Image URL" value={form.image} onChange={e=>update("image", e.target.value)} />
 
+      <div className="form-actions">
+        <button type="submit">{isEditing ? "Update" : "Add"} Book</button>
+        <button type="button" onClick={onCancel}>Cancel</button>
+      </div>
+    </form>
+  );
+}
