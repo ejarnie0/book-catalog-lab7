@@ -6,26 +6,41 @@ export default function BookDetails({ book, loan, isOnLoan, onBack, onEdit, onDe
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!book || !book.title) return;
+    if (!book || !book.author) return;
 
     const fetchSimilarBooks = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Extract main words from title for search (limit to first few words)
-        const query = book.title.split(' ').slice(0, 3).join(' ');
+        // Use the book author as the search query
+        const query = book.author.trim();
         const encodedQuery = encodeURIComponent(query);
-        const response = await fetch(`https://api.itbook.store/1.0/search/${encodedQuery}`);
+        const apiUrl = `https://api.itbook.store/1.0/search/${encodedQuery}`;
+        
+        console.log('Fetching similar books with query:', query);
+        console.log('API URL:', apiUrl);
+        
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch similar books');
+          throw new Error(`Failed to fetch similar books: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
-        // Limit to first 6 results to avoid too many
-        const books = data.books ? data.books.slice(0, 6) : [];
-        setSimilarBooks(books);
+        console.log('API Response:', data);
+        
+        // Check the response structure - it might be data.books or just books
+        const books = data.books || data || [];
+        const limitedBooks = Array.isArray(books) ? books.slice(0, 6) : [];
+        
+        console.log('Similar books found:', limitedBooks.length);
+        setSimilarBooks(limitedBooks);
+        
+        if (limitedBooks.length === 0) {
+          setError('No similar books found');
+        }
       } catch (err) {
+        console.error('Error fetching similar books:', err);
         setError(err.message);
         setSimilarBooks([]);
       } finally {
