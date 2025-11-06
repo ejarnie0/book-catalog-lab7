@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export default function BookForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState({
-    id: null, title: "", author: "", publisher: "", language: "", year: "", image: ""
+    id: null, title: "", author: "", publisher: "", language: "", year: "", pageCount: "", image: ""
   });
 
   useEffect(() => {
@@ -14,10 +14,11 @@ export default function BookForm({ initial, onSave, onCancel }) {
         publisher: initial.publisher ?? "",
         language: initial.language ?? "",
         year: initial.year ?? "",
+        pageCount: initial.pageCount ?? "",
         image: initial.image ?? ""
       });
     } else {
-      setForm({ id: null, title: "", author: "", publisher: "", language: "", year: "", image: "" });
+      setForm({ id: null, title: "", author: "", publisher: "", language: "", year: "", pageCount: "", image: "" });
     }
   }, [initial]);
 
@@ -29,7 +30,7 @@ export default function BookForm({ initial, onSave, onCancel }) {
       alert("Title and Author are required.");
       return;
     }
-    onSave({ ...form, year: form.year ? Number(form.year) : "" });
+    onSave({ ...form, year: form.year ? Number(form.year) : "", pageCount: form.pageCount ? Number(form.pageCount) : "" });
   };
 
   const isEditing = !!form.id;
@@ -41,6 +42,7 @@ export default function BookForm({ initial, onSave, onCancel }) {
       <input placeholder="Publisher" value={form.publisher} onChange={e=>update("publisher", e.target.value)} />
       <input placeholder="Language" value={form.language} onChange={e=>update("language", e.target.value)} />
       <input placeholder="Year" type="number" value={form.year} onChange={e=>update("year", e.target.value)} />
+      <input placeholder="Page Count" type="number" value={form.pageCount} onChange={e=>update("pageCount", e.target.value)} />
       <input placeholder="Image URL" value={form.image} onChange={e=>update("image", e.target.value)} />
 
       <div className="form-actions">

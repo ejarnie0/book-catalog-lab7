@@ -4,6 +4,7 @@ import FilterBar from "./components/filterBar.jsx";
 import BookGrid from "./components/bookGrid.jsx";
 import Modal from "./components/modal.jsx";
 import LoanManagement from "./components/loanManagement.jsx";
+import BookDetails from "./components/bookDetails.jsx";
 
 const LS_KEY = "books_v1";
 const LS_LOANS_KEY = "loans_v1";
@@ -114,6 +115,8 @@ export default function App() {
     const [filters, setFilters] = useState({ publisher: "", language: "" });
     const [modalOpen, setModalOpen] = useState(false);
     const [currentView, setCurrentView] = useState("books");
+    const [selectedBookId, setSelectedBookId] = useState(null); // For details view
+    const [selectedBookIdForEdit, setSelectedBookIdForEdit] = useState(null); // For selection in grid
 
   // load once
     useEffect(() => {
@@ -153,6 +156,21 @@ export default function App() {
         [books, editingId]
     );
 
+    const selectedBook = useMemo(
+        () => books.find(b => b.id === selectedBookId) || null,
+        [books, selectedBookId]
+    );
+
+    const selectedBookLoan = useMemo(
+        () => loans.find(l => l.bookId === selectedBookId) || null,
+        [loans, selectedBookId]
+    );
+
+    const selectedBookForEdit = useMemo(
+        () => books.find(b => b.id === selectedBookIdForEdit) || null,
+        [books, selectedBookIdForEdit]
+    );
+
     const filtered = useMemo(() => {
         return books.filter(b =>
         (!filters.publisher || b.publisher === filters.publisher) &&
@@ -174,10 +192,25 @@ export default function App() {
         // Also remove any loans for this book
         setLoans(prev => prev.filter(loan => loan.bookId !== id));
         setBooks(prev => prev.filter(b => b.id !== id));
+        // Clear selection if the deleted book was selected
+        if (selectedBookIdForEdit === id) {
+            setSelectedBookIdForEdit(null);
+        }
     };
 
-    const openAdd = () => { setEditingId(null); setModalOpen(true); };
-    const openEdit = (id) => { setEditingId(id); setModalOpen(true); };
+    const openAdd = () => { 
+        setEditingId(null); 
+        setModalOpen(true); 
+        setSelectedBookIdForEdit(null);
+    };
+    const openEdit = (id) => { 
+        setEditingId(id); 
+        setModalOpen(true); 
+        setSelectedBookIdForEdit(null);
+    };
+    const viewDetails = (id) => { setSelectedBookId(id); };
+    const backToList = () => { setSelectedBookId(null); };
+    const selectBook = (id) => { setSelectedBookIdForEdit(id); };
 
     // Loan management functions
     const createLoan = ({ borrower, bookId, loanPeriod }) => {
@@ -225,30 +258,49 @@ export default function App() {
 
         <main className="main-content">
             {currentView === "books" ? (
-                <div className="container">
-                {/* LEFT PANEL: Filters */}
-                <aside className="left-panel">
-                    <FilterBar
-                    publishers={publishers}
-                    languages={languages}
-                    filters={filters}
-                    onChange={setFilters}
-                    onClear={() => setFilters({ publisher: "", language: "" })}
-                    />
-                </aside>
+                selectedBookId ? (
+                    <div className="container">
+                        <section style={{ gridColumn: "1 / -1", padding: "2rem" }}>
+                            <BookDetails
+                                book={selectedBook}
+                                loan={selectedBookLoan}
+                                isOnLoan={isBookOnLoan(selectedBookId)}
+                                onBack={backToList}
+                                onEdit={(id) => { setSelectedBookId(null); openEdit(id); }}
+                                onDelete={(id) => { removeBook(id); setSelectedBookId(null); }}
+                            />
+                        </section>
+                    </div>
+                ) : (
+                    <div className="container">
+                    {/* LEFT PANEL: Filters */}
+                    <aside className="left-panel">
+                        <FilterBar
+                        publishers={publishers}
+                        languages={languages}
+                        filters={filters}
+                        onChange={setFilters}
+                        onClear={() => setFilters({ publisher: "", language: "" })}
+                        selectedBook={selectedBookForEdit}
+                        onEdit={openEdit}
+                        onDelete={removeBook}
+                        />
+                    </aside>
 
-                {/* GRID: Cards + Add card */}
-                <section style={{ gridColumn: 2 }}>
-                    <BookGrid
-                    books={filtered}
-                    loans={loans}
-                    isBookOnLoan={isBookOnLoan}
-                    onAdd={openAdd}
-                    onEdit={openEdit}
-                    onDelete={removeBook}
-                    />
-                </section>
-                </div>
+                    {/* GRID: Cards + Add card */}
+                    <section style={{ gridColumn: 2 }}>
+                        <BookGrid
+                        books={filtered}
+                        loans={loans}
+                        isBookOnLoan={isBookOnLoan}
+                        onAdd={openAdd}
+                        onViewDetails={viewDetails}
+                        selectedBookId={selectedBookIdForEdit}
+                        onSelectBook={selectBook}
+                        />
+                    </section>
+                    </div>
+                )
             ) : (
                 <div className="container">
                     <section style={{ gridColumn: "1 / -1", padding: "2rem" }}>

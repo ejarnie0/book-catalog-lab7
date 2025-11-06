@@ -1,4 +1,4 @@
-export default function BookGrid({ books, loans, isBookOnLoan, onAdd, onEdit, onDelete }) {
+export default function BookGrid({ books, loans, isBookOnLoan, onAdd, onViewDetails, selectedBookId, onSelectBook }) {
   return (
     <div className="books-grid">
       {/* Add Book card */}
@@ -17,11 +17,20 @@ export default function BookGrid({ books, loans, isBookOnLoan, onAdd, onEdit, on
         const onLoan = isBookOnLoan(b.id);
         const loan = loans?.find(l => l.bookId === b.id);
         
+        const isSelected = selectedBookId === b.id;
+        
         return (
           <article 
-            className={`book ${onLoan ? "on-loan" : ""}`} 
+            className={`book ${onLoan ? "on-loan" : ""} ${isSelected ? "selected" : ""}`} 
             key={b.id}
-            style={{ position: "relative" }}
+            style={{ position: "relative", cursor: "pointer" }}
+            onClick={(e) => {
+              // Don't select if clicking on buttons
+              if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                return;
+              }
+              onSelectBook(b.id);
+            }}
           >
             {onLoan && (
               <div className="loan-badge" style={{
@@ -70,12 +79,8 @@ export default function BookGrid({ books, loans, isBookOnLoan, onAdd, onEdit, on
             )}
 
             <div className="action-buttons" style={{ marginTop: "1rem" }}>
-              <button className="edit-button" onClick={() => onEdit(b.id)}>Edit</button>
-              <button
-                className="delete-button"
-                onClick={() => { if (confirm("Delete this book?")) onDelete(b.id); }}
-              >
-                Delete
+              <button className="view-details-button" onClick={() => onViewDetails(b.id)}>
+                View Details
               </button>
             </div>
           </article>
